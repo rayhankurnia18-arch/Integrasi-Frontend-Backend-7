@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Todo } from '@/lib/todos';
+import { Todo } from '@/types/todo';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import TodoForm from '@/app/components/TodoForm';
 import TodoList from '@/app/components/TodoList';
@@ -18,11 +18,12 @@ export default function TodoCachedApp({ initialTodos }: TodoCachedAppProps) {
       id: Date.now().toString(),
       title,
       completed: false,
+      createdAt: new Date().toISOString().split('T')[0],
     };
     setTodos((prev) => [newTodo, ...prev]);
   };
 
-  const handleToggleTodo = (id: string) => {
+  const handleToggleTodo = (id: number | string) => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
@@ -30,7 +31,7 @@ export default function TodoCachedApp({ initialTodos }: TodoCachedAppProps) {
     );
   };
 
-  const handleDeleteTodo = (id: string) => {
+  const handleDeleteTodo = (id: number | string) => {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
   };
 

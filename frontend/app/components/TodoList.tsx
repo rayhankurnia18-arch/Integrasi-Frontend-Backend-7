@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Todo } from '@/lib/todos';
+import { Todo } from '@/types/todo';
 import TodoItem from './TodoItem';
 
 type TodoListProps = {
   todos: Todo[];
-  onToggleTodo: (id: string) => void;
-  onDeleteTodo: (id: string) => void;
+  onToggleTodo: (id: number | string) => void;
+  onDeleteTodo: (id: number | string) => void;
 };
 
 export default function TodoList({

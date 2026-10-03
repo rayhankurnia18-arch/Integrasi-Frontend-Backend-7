@@ -1,32 +1,52 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+import type { RegisterRequest, LoginRequest } from '../types/auth';
+import type { CreateTodoRequest, UpdateTodoRequest } from '../types/todo';
+import { sendError } from '../utils/response';
 
 export const validateRegister = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
-        res.status(400).json({ success: false, message: 'Username, email, dan password wajib diisi!' });
-        return;
-    }
-    if (!email.includes('@')) {
-        res.status(400).json({ success: false, message: 'Format email tidak valid!' });
-        return;
-    }
-    next();
+  const payload: RegisterRequest = req.body;
+  if (!payload.username || !payload.email || !payload.password) {
+    sendError(res, 'Username, email, dan password wajib diisi!', 400);
+    return;
+  }
+  if (!payload.email.includes('@')) {
+    sendError(res, 'Format email tidak valid!', 400);
+    return;
+  }
+  next();
 };
 
 export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        res.status(400).json({ success: false, message: 'Username dan password wajib diisi!' });
-        return;
-    }
-    next();
+  const payload: LoginRequest = req.body;
+  if (!payload.username || !payload.password) {
+    sendError(res, 'Username dan password wajib diisi!', 400);
+    return;
+  }
+  next();
 };
 
 export const validateTodo = (req: Request, res: Response, next: NextFunction): void => {
-    const { task } = req.body;
-    if (!task || typeof task !== 'string') {
-        res.status(400).json({ success: false, message: 'Task wajib diisi dengan format string!' });
-        return;
-    }
-    next();
+  const payload: CreateTodoRequest = req.body;
+  if (!payload.task || typeof payload.task !== 'string') {
+    sendError(res, 'Task wajib diisi dengan format string!', 400);
+    return;
+  }
+  next();
+};
+
+export const validateUpdateTodo = (req: Request, res: Response, next: NextFunction): void => {
+  const payload: UpdateTodoRequest = req.body;
+  if (payload.task === undefined && payload.is_completed === undefined) {
+    sendError(res, 'Isi minimal task atau is_completed!', 400);
+    return;
+  }
+  if (payload.task !== undefined && typeof payload.task !== 'string') {
+    sendError(res, 'Task harus berupa string!', 400);
+    return;
+  }
+  if (payload.is_completed !== undefined && typeof payload.is_completed !== 'boolean') {
+    sendError(res, 'is_completed harus berupa true atau false!', 400);
+    return;
+  }
+  next();
 };

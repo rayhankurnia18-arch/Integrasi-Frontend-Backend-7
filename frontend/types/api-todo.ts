@@ -19,3 +19,6 @@ export type FormattedTask = {
   userId: number;
   source: string;
 };
+
+export type ApiTodo = DummyJsonTodo;
+export type TodosApiResponse = DummyJsonResponse;

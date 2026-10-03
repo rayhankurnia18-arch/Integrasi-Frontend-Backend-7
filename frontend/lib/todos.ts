@@ -1,4 +1,5 @@
 import { Todo } from '@/types/todo';
+export type { Todo };
 
 export const todos: Todo[] = [
   {
@@ -41,7 +42,17 @@ export async function getTodos(): Promise<Todo[]> {
 export async function getTodoDetail(
   id: string | number
 ): Promise<Todo | null> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const todo = todos.find((item) => item.id === Number(id));
+  let currentTodos = todos;
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('my_todos');
+      if (saved) {
+        currentTodos = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Error parsing my_todos from localStorage", e);
+    }
+  }
+  const todo = currentTodos.find((item) => String(item.id) === String(id));
   return todo || null;
 }

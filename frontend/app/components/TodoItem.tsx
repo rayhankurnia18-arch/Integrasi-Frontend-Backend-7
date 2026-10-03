@@ -2,13 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Todo } from '@/lib/todos';
+import { Todo } from '@/types/todo';
 import { Button } from '@/app/components/ui/button';
 
 type TodoItemProps = {
   todo: Todo;
-  onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
+  onToggle: (id: number | string) => void;
+  onDelete: (id: number | string) => void;
 };
 
 export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {

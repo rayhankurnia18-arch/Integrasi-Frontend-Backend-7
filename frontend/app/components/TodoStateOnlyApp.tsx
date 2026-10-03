@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Todo } from '@/lib/todos';
+import React, { useState, useEffect } from 'react';
+import { Todo } from '@/types/todo';
 import TodoForm from './TodoForm';
 import TodoList from './TodoList';
 
@@ -11,25 +11,47 @@ type TodoStateOnlyAppProps = {
 
 export default function TodoStateOnlyApp({ initialTodos }: TodoStateOnlyAppProps) {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('my_todos');
+    if (saved) {
+      setTodos(JSON.parse(saved));
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('my_todos', JSON.stringify(todos));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('todos_updated'));
+      }
+    }
+  }, [todos, isLoaded]);
 
   const handleAddTodo = (title: string) => {
     const newTodo: Todo = {
       id: Date.now().toString(),
       title,
       completed: false,
+      createdAt: new Date().toISOString().split('T')[0],
     };
     setTodos((prev) => [newTodo, ...prev]);
   };
 
-  const handleToggleTodo = (id: string) => {
+  const handleToggleTodo = (id: number | string) => {
     setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
+      prev.map((todo) => {
+        if (todo.id === id) {
+          return { ...todo, completed: !todo.completed };
+        }
+        return todo;
+      })
     );
   };
 
-  const handleDeleteTodo = (id: string) => {
+  const handleDeleteTodo = (id: number | string) => {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
   };
 

@@ -1,16 +1,44 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import apiRoutes from './routes/api.js';
+import routes from './routes/index';
+import { randomUUID } from 'crypto';
+import { sendSuccess, sendError } from './utils/response';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ exposedHeaders: ['X-Request-Id'] }));
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.status(200).json({ success: true, message: 'Backend Todo Praktikum Berjalan Mulus!!' });
+// Request ID per request dikirim lewat header
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const requestId = randomUUID();
+  res.locals.requestId = requestId;
+  res.setHeader('X-Request-Id', requestId);
+  next();
 });
 
-app.use('/api', apiRoutes);
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`[${res.locals.requestId}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Route utama cek apakah server berjalan
+app.get('/', (req: Request, res: Response) => {
+  sendSuccess(res, 'Backend Todo Praktikum Berjalan Mulus!');
+});
+
+// Daftarkan semua route dengan prefix /api
+app.use('/api', routes);
+
+// 404 Handler - tidak ada route yang cocok
+app.use((req: Request, res: Response) => {
+  sendError(res, `Route ${req.method} ${req.url} tidak ditemukan!`, 404);
+});
+
+// Global Error Handler
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('Terjadi error: ', err.message);
+  sendError(res, 'Terjadi kesalahan pada server.', 500);
+});
 
 export default app;
